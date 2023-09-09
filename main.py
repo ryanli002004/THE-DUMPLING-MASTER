@@ -1,6 +1,5 @@
 import pygame
 import os
-import time
 import random
 pygame.init()
 
@@ -92,7 +91,11 @@ dumpling4rectx = random.randint(30, WINDOWW-30)
 dumpling4recty = random.randint(30, WINDOWH-30)
 dumpling4rect.center = (dumpling4rectx,dumpling4recty)
 
-eatsound = pygame.mixer.Sound()
+eatsound = pygame.mixer.Sound(os.path.join("assets","eat.mp3"))
+hurtsound = pygame.mixer.Sound(os.path.join("assets","hurt.mp3"))
+gameoversound = pygame.mixer.Sound(os.path.join("assets","gameover.mp3"))
+boostsound = pygame.mixer.Sound(os.path.join("assets","boost.mp3"))
+pygame.mixer.music.load(os.path.join("assets","background.mp3"))
 
 font = pygame.font.Font(os.path.join("assets", "font.ttf"), 32)
 scoretext = font.render("Score: "+str(score), True, WHITE, GREY)
@@ -110,6 +113,8 @@ continuerect.center = (WINDOWW//2,WINDOWH//2+16)
 
 
 running = True
+pygame.mixer.music.play(-1,0.0)
+pygame.mixer.music.set_volume(0.5)
 currenttime = 0
 golddumplingtimer = 0
 golddumplingtimer1 = 0
@@ -132,81 +137,103 @@ while running:
 
     if racoonrect.colliderect(dumpling1rect):
         score+=1
+        eatsound.play()
         dumpling1rect.x = random.randint(30, WINDOWW-30)
         dumpling1rect.y = random.randint(30, WINDOWH-30)
     if racoonrect.colliderect(dumpling2rect):
         score+=1
+        eatsound.play()
         dumpling2rect.x = random.randint(30, WINDOWW-30)
         dumpling2rect.y = random.randint(30, WINDOWH-30)
     if racoonrect.colliderect(dumpling3rect):
         score+=1
+        eatsound.play()
         dumpling3rect.x = random.randint(30, WINDOWW-30)
         dumpling3rect.y = random.randint(30, WINDOWH-30)
     if racoonrect.colliderect(dumpling4rect):
         score+=1
+        eatsound.play()
         dumpling4rect.x = random.randint(30, WINDOWW-30)
         dumpling4rect.y = random.randint(30, WINDOWH-30)
     if racoonrect.colliderect(golddumplingrect):
         score+=1
         lives+=1
-        racoonvel = racoonvel * 2
+        eatsound.play()
+        boostsound.play()
+        racoonvel = racoonvel * 1.5
         golddumplingrect.x = WINDOWW+BUFFER
         golddumplingrect.y = WINDOWH+BUFFER
         golddumplingtimer = pygame.time.get_ticks()
-    if golddumplingtimer > 0 and currenttime - golddumplingtimer > 3000:
-        racoonvel = racoonvel/2
+    if golddumplingtimer > 0 and currenttime - golddumplingtimer > 5000:
+        racoonvel = racoonvel/1.5
         golddumplingtimer = 0
         golddumplingtimer1 = pygame.time.get_ticks()
-    if golddumplingtimer1 > 0 and currenttime - golddumplingtimer1 > 4000:
+    if golddumplingtimer1 > 0 and currenttime - golddumplingtimer1 > 10000:
         golddumplingrect.x = random.randint(30, WINDOWW-30)
         golddumplingrect.y = random.randint(30, WINDOWH-30)
         golddumplingtimer1 = 0
     if racoonrect.colliderect(leftlaserrect):
         lives -= 1
+        hurtsound.play()
         racoonrect.center = (WINDOWW//2,WINDOWH//2)
     if racoonrect.colliderect(rightlaserrect):
         lives -= 1
+        hurtsound.play()
         racoonrect.center = (WINDOWW//2,WINDOWH//2) 
     if racoonrect.colliderect(uplaserrect):
         lives -= 1
+        hurtsound.play()
         racoonrect.center = (WINDOWW//2,WINDOWH//2)
     if racoonrect.colliderect(downlaserrect):
         lives -= 1
+        hurtsound.play()
         racoonrect.center = (WINDOWW//2,WINDOWH//2)
     if racoonrect.colliderect(bearrect):
         lives -= 1
+        hurtsound.play()
         racoonrect.center = (WINDOWW//2,WINDOWH//2)
     if racoonrect.colliderect(lionrect):
         lives -= 1
+        hurtsound.play()
         racoonrect.center = (WINDOWW//2,WINDOWH//2)
     if racoonrect.colliderect(bigrockrect):
         lives -= 1
+        hurtsound.play()
         racoonrect.center = (WINDOWW//2,WINDOWH//2)
     if racoonrect.colliderect(smallrock1rect):
         lives -= 1
+        hurtsound.play()
         racoonrect.center = (WINDOWW//2,WINDOWH//2)
     if racoonrect.colliderect(smallrock2rect):
         lives -= 1
+        hurtsound.play()
         racoonrect.center = (WINDOWW//2,WINDOWH//2)
     if racoonrect.colliderect(smallrock3rect):
         lives -= 1
+        hurtsound.play()
         racoonrect.center = (WINDOWW//2,WINDOWH//2)
     if racoonrect.colliderect(smallrock4rect):
         lives -= 1
+        hurtsound.play()
         racoonrect.center = (WINDOWW//2,WINDOWH//2)
     if racoonrect.colliderect(bigrock2rect):
         lives -= 1
+        hurtsound.play()
         racoonrect.center = (WINDOWW//2,WINDOWH//2)
     if racoonrect.colliderect(wolfrect):
         lives -= 1
+        hurtsound.play()
         racoonrect.center = (WINDOWW//2,WINDOWH//2)
     if racoonrect.colliderect(crocrect):
         lives -= 1
+        hurtsound.play()
         racoonrect.center = (WINDOWW//2,WINDOWH//2)
 
     if lives <= 0:
+        gameoversound.play()
         paused = True
         while paused:
+            pygame.mixer.music.stop()
             window.blit(gameovertext,gameoverrect)
             window.blit(continuetext,continuerect)
             pygame.display.update()
