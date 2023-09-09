@@ -16,6 +16,8 @@ GREY = (107,107,107)
 RED = (200,0,0)
 WHITE = (200,200,200)
 STARTINGLIVES = 10
+SMALLROCKVEL = 7
+BIGROCKVEL = 4
 lives = STARTINGLIVES
 racoonvel = 10
 score = 0
@@ -31,7 +33,7 @@ lionrect = lionimage.get_rect()
 lionrect.center = (200,100)
 smallrock2image = pygame.image.load(os.path.join("assets","smallrock2.png"))
 smallrock2rect = smallrock2image.get_rect()
-smallrock2rect.center = (300,100)
+smallrock2rect.center = (100,0-BUFFER)
 smallrock1image = pygame.image.load(os.path.join("assets","smallrock1.png"))
 smallrock1rect = smallrock1image.get_rect()
 smallrock1rect.center = (400,100)
@@ -111,6 +113,34 @@ continuetext = font.render("press any key to play again",True, WHITE, GREY)
 continuerect = continuetext.get_rect()
 continuerect.center = (WINDOWW//2,WINDOWH//2+16)
 
+smallrock2direction = None
+if smallrock2rect.y > WINDOWH:
+    smallrock2direction = "up"
+elif smallrock2rect.y < 0:
+    smallrock2direction = "down"
+elif smallrock2rect.x > WINDOWW:
+    smallrock2direction = "left"
+elif smallrock2rect.x < 0:
+    smallrock2direction = "right"
+def resetsmallrock2():
+    global smallrock2direction
+    global smallrock2rect
+    xory = random.choice(["x","y"])
+    if xory == "x":
+        smallrock2rect.x = random.choice([WINDOWW+BUFFER,0-BUFFER])
+        smallrock2rect.y = random.randint(0,WINDOWH)
+    if xory == "y":
+        smallrock2rect.x = random.randint(0,WINDOWW)
+        smallrock2rect.y = random.choice([WINDOWH+BUFFER,0-BUFFER])
+    if smallrock2rect.y > WINDOWH:
+        smallrock2direction = "up"
+    elif smallrock2rect.y < 0:
+        smallrock2direction = "down"
+    elif smallrock2rect.x > WINDOWW:
+        smallrock2direction = "left"
+    elif smallrock2rect.x < 0:
+        smallrock2direction = "right"
+
 
 running = True
 pygame.mixer.music.play(-1,0.0)
@@ -118,6 +148,7 @@ pygame.mixer.music.set_volume(0.5)
 currenttime = 0
 golddumplingtimer = 0
 golddumplingtimer1 = 0
+smallrocktimer = 0
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -205,6 +236,13 @@ while running:
         hurtsound.play()
         racoonrect.center = (WINDOWW//2,WINDOWH//2)
     if racoonrect.colliderect(smallrock2rect):
+        xory = random.choice(["x","y"])
+        if xory == "x":
+            smallrock2rect.x = random.choice([WINDOWW+BUFFER,0-BUFFER])
+            smallrock2rect.y = random.randint(0,WINDOWH)
+        if xory == "y":
+            smallrock2rect.x = random.randint(0,WINDOWW)
+            smallrock2rect.y = random.choice([WINDOWH+BUFFER,0-BUFFER])
         lives -= 1
         hurtsound.play()
         racoonrect.center = (WINDOWW//2,WINDOWH//2)
@@ -229,11 +267,32 @@ while running:
         hurtsound.play()
         racoonrect.center = (WINDOWW//2,WINDOWH//2)
 
+    if smallrock2direction == "left":
+        if smallrock2rect.x > 0:
+            smallrock2rect.x -= SMALLROCKVEL
+        if smallrock2rect.x < 0:
+            resetsmallrock2()
+    if smallrock2direction == "right":
+        if smallrock2rect.x < WINDOWW:
+            smallrock2rect.x += SMALLROCKVEL
+        if smallrock2rect.x > WINDOWW:
+            resetsmallrock2()
+    if smallrock2direction == "up":
+        if smallrock2rect.y > 0:
+            smallrock2rect.y -= SMALLROCKVEL
+        if smallrock2rect.y <0:
+            resetsmallrock2()
+    if smallrock2direction == "down":
+        if smallrock2rect.y < WINDOWH:
+            smallrock2rect.y += SMALLROCKVEL
+        if smallrock2rect.y > WINDOWH:
+            resetsmallrock2()
+
     if lives <= 0:
         gameoversound.play()
         paused = True
+        pygame.mixer.music.stop()
         while paused:
-            pygame.mixer.music.stop()
             window.blit(gameovertext,gameoverrect)
             window.blit(continuetext,continuerect)
             pygame.display.update()
@@ -242,6 +301,7 @@ while running:
                     paused = False
                     running = False
                 if event.type == pygame.KEYDOWN:
+                    pygame.mixer.music.play(-1,0.0)
                     lives = STARTINGLIVES
                     racoonrect.center = (WINDOWW//2,WINDOWH//2)
                     score = 0
