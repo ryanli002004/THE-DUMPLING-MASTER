@@ -10,63 +10,41 @@ pygame.display.set_caption("DUMPLING MASTER")
 
 FPS = 60
 clock = pygame.time.Clock()
+
 BUFFER = 100
 BLACK = (0,0,0)
 GREY = (107,107,107)
 RED = (200,0,0)
 WHITE = (200,200,200)
 STARTINGLIVES = 10
-SMALLROCKVEL = 7
-BIGROCKVEL = 4
+STARTINGROCKVEL = 6
+rockvel = STARTINGROCKVEL
 lives = STARTINGLIVES
 racoonvel = 10
 score = 0
 
+
+backgroundimage = pygame.image.load(os.path.join("assets","grass.png"))
+backgroundrect = backgroundimage.get_rect()
+backgroundrect.topleft = (0,0)
 racoonimage = pygame.image.load(os.path.join("assets","racoon.png"))
 racoonrect = racoonimage.get_rect()
 racoonrect.center = (WINDOWW//2,WINDOWH//2)
-bearimage = pygame.image.load(os.path.join("assets","bear.png"))
-bearrect = bearimage.get_rect()
-bearrect.center = (100,100)
-lionimage = pygame.image.load(os.path.join("assets","lion.png"))
-lionrect = lionimage.get_rect()
-lionrect.center = (200,100)
 smallrock2image = pygame.image.load(os.path.join("assets","smallrock2.png"))
 smallrock2rect = smallrock2image.get_rect()
 smallrock2rect.center = (100,0-BUFFER)
 smallrock1image = pygame.image.load(os.path.join("assets","smallrock1.png"))
 smallrock1rect = smallrock1image.get_rect()
-smallrock1rect.center = (400,100)
-bigrockimage = pygame.image.load(os.path.join("assets","bigrock.png"))
-bigrockrect = bigrockimage.get_rect()
-bigrockrect.center = (500,100)
-uplaserimage = pygame.image.load(os.path.join("assets","uplaser.png"))
-uplaserrect = uplaserimage.get_rect()
-uplaserrect.center = (600,100)
-downlaserimage = pygame.image.load(os.path.join("assets","downlaser.png"))
-downlaserrect = downlaserimage.get_rect()
-downlaserrect.center = (700,100)
-rightlaserimage = pygame.image.load(os.path.join("assets","rightlaser.png"))
-rightlaserrect = rightlaserimage.get_rect()
-rightlaserrect.center = (100,200)
-leftlaserimage = pygame.image.load(os.path.join("assets","leftlaser.png"))
-leftlaserrect = leftlaserimage.get_rect()
-leftlaserrect.center = (200,200)
-wolfimage = pygame.image.load(os.path.join("assets","wolf.png"))
-wolfrect = wolfimage.get_rect()
-wolfrect.center = (300,200)
-crocimage = pygame.image.load(os.path.join("assets","croc.png"))
-crocrect = crocimage.get_rect()
-crocrect.center = (400,200)
-bigrock2image = pygame.image.load(os.path.join("assets","bigrock2.png"))
-bigrock2rect = bigrock2image.get_rect()
-bigrock2rect.center = (500,200)
+smallrock1rect.center = (400,WINDOWH+BUFFER)
+smallrock5image = pygame.image.load(os.path.join("assets","smallrock5.png"))
+smallrock5rect = smallrock5image.get_rect()
+smallrock5rect.center = (600,WINDOWH+BUFFER)
 smallrock3image = pygame.image.load(os.path.join("assets","smallrock3.png"))
 smallrock3rect = smallrock3image.get_rect()
-smallrock3rect.center = (600,200)
+smallrock3rect.center = (0-BUFFER,200)
 smallrock4image = pygame.image.load(os.path.join("assets","smallrock4.png"))
 smallrock4rect = smallrock4image.get_rect()
-smallrock4rect.center = (700,200)
+smallrock4rect.center = (WINDOWW+BUFFER,400)
 dumpling1image = pygame.image.load(os.path.join("assets","dumpling1.png"))
 dumpling1rect = dumpling1image.get_rect()
 dumpling1rectx = random.randint(30, WINDOWW-30)
@@ -105,7 +83,10 @@ scorerect = scoretext.get_rect()
 scorerect.topleft = (10,10)
 livestext = font.render("Lives: "+str(lives), True, WHITE, GREY)
 livesrect = livestext.get_rect()
-livesrect.topleft = (10, 52)
+livesrect.topright = (WINDOWW-10, 10)
+titletext = font.render("The Dumpling Master", True, WHITE, GREY)
+titlerect = titletext.get_rect()
+titlerect.center = (WINDOWW//2,26)
 gameovertext = font.render("you died!", True, WHITE,GREY)
 gameoverrect = gameovertext.get_rect()
 gameoverrect.center = (WINDOWW//2,WINDOWH//2-16)
@@ -128,9 +109,9 @@ def resetsmallrock2():
     xory = random.choice(["x","y"])
     if xory == "x":
         smallrock2rect.x = random.choice([WINDOWW+BUFFER,0-BUFFER])
-        smallrock2rect.y = random.randint(0,WINDOWH)
+        smallrock2rect.y = random.randint(0+24,WINDOWH-24)
     if xory == "y":
-        smallrock2rect.x = random.randint(0,WINDOWW)
+        smallrock2rect.x = random.randint(0+24,WINDOWW-24)
         smallrock2rect.y = random.choice([WINDOWH+BUFFER,0-BUFFER])
     if smallrock2rect.y > WINDOWH:
         smallrock2direction = "up"
@@ -141,6 +122,118 @@ def resetsmallrock2():
     elif smallrock2rect.x < 0:
         smallrock2direction = "right"
 
+smallrock4direction = None
+if smallrock4rect.y > WINDOWH:
+    smallrock4direction = "up"
+elif smallrock4rect.y < 0:
+    smallrock4direction = "down"
+elif smallrock4rect.x > WINDOWW:
+    smallrock4direction = "left"
+elif smallrock4rect.x < 0:
+    smallrock4direction = "right"
+def resetsmallrock4():
+    global smallrock4direction
+    global smallrock4rect
+    xory = random.choice(["x","y"])
+    if xory == "x":
+        smallrock4rect.x = random.choice([WINDOWW+BUFFER,0-BUFFER])
+        smallrock4rect.y = random.randint(0+24,WINDOWH-24)
+    if xory == "y":
+        smallrock4rect.x = random.randint(0+24,WINDOWW-24)
+        smallrock4rect.y = random.choice([WINDOWH+BUFFER,0-BUFFER])
+    if smallrock4rect.y > WINDOWH:
+        smallrock4direction = "up"
+    elif smallrock4rect.y < 0:
+        smallrock4direction = "down"
+    elif smallrock4rect.x > WINDOWW:
+        smallrock4direction = "left"
+    elif smallrock4rect.x < 0:
+        smallrock4direction = "right"
+
+
+smallrock1direction = None
+if smallrock1rect.y > WINDOWH:
+    smallrock1direction = "up"
+elif smallrock1rect.y < 0:
+    smallrock1direction = "down"
+elif smallrock1rect.x > WINDOWW:
+    smallrock1direction = "left"
+elif smallrock1rect.x < 0:
+    smallrock1direction = "right"
+def resetsmallrock1():
+    global smallrock1direction
+    global smallrock1rect
+    xory = random.choice(["x","y"])
+    if xory == "x":
+        smallrock1rect.x = random.choice([WINDOWW+BUFFER,0-BUFFER])
+        smallrock1rect.y = random.randint(0+24,WINDOWH-24)
+    if xory == "y":
+        smallrock1rect.x = random.randint(0+24,WINDOWW-24)
+        smallrock1rect.y = random.choice([WINDOWH+BUFFER,0-BUFFER])
+    if smallrock1rect.y > WINDOWH:
+        smallrock1direction = "up"
+    elif smallrock1rect.y < 0:
+        smallrock1direction = "down"
+    elif smallrock1rect.x > WINDOWW:
+        smallrock1direction = "left"
+    elif smallrock1rect.x < 0:
+        smallrock1direction = "right"
+
+smallrock3direction = None
+if smallrock3rect.y > WINDOWH:
+    smallrock3direction = "up"
+elif smallrock3rect.y < 0:
+    smallrock3direction = "down"
+elif smallrock3rect.x > WINDOWW:
+    smallrock3direction = "left"
+elif smallrock3rect.x < 0:
+    smallrock3direction = "right"
+def resetsmallrock3():
+    global smallrock3direction
+    global smallrock3rect
+    xory = random.choice(["x","y"])
+    if xory == "x":
+        smallrock3rect.x = random.choice([WINDOWW+BUFFER,0-BUFFER])
+        smallrock3rect.y = random.randint(0+24,WINDOWH-24)
+    if xory == "y":
+        smallrock3rect.x = random.randint(0+24,WINDOWW-24)
+        smallrock3rect.y = random.choice([WINDOWH+BUFFER,0-BUFFER])
+    if smallrock3rect.y > WINDOWH:
+        smallrock3direction = "up"
+    elif smallrock3rect.y < 0:
+        smallrock3direction = "down"
+    elif smallrock3rect.x > WINDOWW:
+        smallrock3direction = "left"
+    elif smallrock3rect.x < 0:
+        smallrock3direction = "right"
+
+smallrock5direction = None
+if smallrock5rect.y > WINDOWH:
+    smallrock5direction = "up"
+elif smallrock5rect.y < 0:
+    smallrock5direction = "down"
+elif smallrock5rect.x > WINDOWW:
+    smallrock5direction = "left"
+elif smallrock5rect.x < 0:
+    smallrock5direction = "right"
+def resetsmallrock5():
+    global smallrock5direction
+    global smallrock5rect
+    xory = random.choice(["x","y"])
+    if xory == "x":
+        smallrock5rect.x = random.choice([WINDOWW+BUFFER,0-BUFFER])
+        smallrock5rect.y = random.randint(0+24,WINDOWH-24)
+    if xory == "y":
+        smallrock5rect.x = random.randint(0+24,WINDOWW-24)
+        smallrock5rect.y = random.choice([WINDOWH+BUFFER,0-BUFFER])
+    if smallrock5rect.y > WINDOWH:
+        smallrock5direction = "up"
+    elif smallrock5rect.y < 0:
+        smallrock5direction = "down"
+    elif smallrock5rect.x > WINDOWW:
+        smallrock5direction = "left"
+    elif smallrock5rect.x < 0:
+        smallrock5direction = "right"
 
 running = True
 pygame.mixer.music.play(-1,0.0)
@@ -199,39 +292,18 @@ while running:
         racoonvel = racoonvel/1.5
         golddumplingtimer = 0
         golddumplingtimer1 = pygame.time.get_ticks()
-    if golddumplingtimer1 > 0 and currenttime - golddumplingtimer1 > 10000:
+    if golddumplingtimer1 > 0 and currenttime - golddumplingtimer1 > 5000:
         golddumplingrect.x = random.randint(30, WINDOWW-30)
         golddumplingrect.y = random.randint(30, WINDOWH-30)
         golddumplingtimer1 = 0
-    if racoonrect.colliderect(leftlaserrect):
-        lives -= 1
-        hurtsound.play()
-        racoonrect.center = (WINDOWW//2,WINDOWH//2)
-    if racoonrect.colliderect(rightlaserrect):
-        lives -= 1
-        hurtsound.play()
-        racoonrect.center = (WINDOWW//2,WINDOWH//2) 
-    if racoonrect.colliderect(uplaserrect):
-        lives -= 1
-        hurtsound.play()
-        racoonrect.center = (WINDOWW//2,WINDOWH//2)
-    if racoonrect.colliderect(downlaserrect):
-        lives -= 1
-        hurtsound.play()
-        racoonrect.center = (WINDOWW//2,WINDOWH//2)
-    if racoonrect.colliderect(bearrect):
-        lives -= 1
-        hurtsound.play()
-        racoonrect.center = (WINDOWW//2,WINDOWH//2)
-    if racoonrect.colliderect(lionrect):
-        lives -= 1
-        hurtsound.play()
-        racoonrect.center = (WINDOWW//2,WINDOWH//2)
-    if racoonrect.colliderect(bigrockrect):
-        lives -= 1
-        hurtsound.play()
-        racoonrect.center = (WINDOWW//2,WINDOWH//2)
     if racoonrect.colliderect(smallrock1rect):
+        xory = random.choice(["x","y"])
+        if xory == "x":
+            smallrock1rect.x = random.choice([WINDOWW+BUFFER,0-BUFFER])
+            smallrock1rect.y = random.randint(0,WINDOWH)
+        if xory == "y":
+            smallrock1rect.x = random.randint(0,WINDOWW)
+            smallrock1rect.y = random.choice([WINDOWH+BUFFER,0-BUFFER])
         lives -= 1
         hurtsound.play()
         racoonrect.center = (WINDOWW//2,WINDOWH//2)
@@ -247,46 +319,147 @@ while running:
         hurtsound.play()
         racoonrect.center = (WINDOWW//2,WINDOWH//2)
     if racoonrect.colliderect(smallrock3rect):
+        xory = random.choice(["x","y"])
+        if xory == "x":
+            smallrock3rect.x = random.choice([WINDOWW+BUFFER,0-BUFFER])
+            smallrock3rect.y = random.randint(0,WINDOWH)
+        if xory == "y":
+            smallrock3rect.x = random.randint(0,WINDOWW)
+            smallrock3rect.y = random.choice([WINDOWH+BUFFER,0-BUFFER])
         lives -= 1
         hurtsound.play()
         racoonrect.center = (WINDOWW//2,WINDOWH//2)
     if racoonrect.colliderect(smallrock4rect):
+        xory = random.choice(["x","y"])
+        if xory == "x":
+            smallrock4rect.x = random.choice([WINDOWW+BUFFER,0-BUFFER])
+            smallrock4rect.y = random.randint(0,WINDOWH)
+        if xory == "y":
+            smallrock4rect.x = random.randint(0,WINDOWW)
+            smallrock4rect.y = random.choice([WINDOWH+BUFFER,0-BUFFER])
         lives -= 1
         hurtsound.play()
         racoonrect.center = (WINDOWW//2,WINDOWH//2)
-    if racoonrect.colliderect(bigrock2rect):
-        lives -= 1
-        hurtsound.play()
-        racoonrect.center = (WINDOWW//2,WINDOWH//2)
-    if racoonrect.colliderect(wolfrect):
-        lives -= 1
-        hurtsound.play()
-        racoonrect.center = (WINDOWW//2,WINDOWH//2)
-    if racoonrect.colliderect(crocrect):
+    if racoonrect.colliderect(smallrock5rect):
+        xory = random.choice(["x","y"])
+        if xory == "x":
+            smallrock5rect.x = random.choice([WINDOWW+BUFFER,0-BUFFER])
+            smallrock5rect.y = random.randint(0,WINDOWH)
+        if xory == "y":
+            smallrock5rect.x = random.randint(0,WINDOWW)
+            smallrock5rect.y = random.choice([WINDOWH+BUFFER,0-BUFFER])
         lives -= 1
         hurtsound.play()
         racoonrect.center = (WINDOWW//2,WINDOWH//2)
 
-    if smallrock2direction == "left":
-        if smallrock2rect.x > 0:
-            smallrock2rect.x -= SMALLROCKVEL
-        if smallrock2rect.x < 0:
-            resetsmallrock2()
-    if smallrock2direction == "right":
-        if smallrock2rect.x < WINDOWW:
-            smallrock2rect.x += SMALLROCKVEL
-        if smallrock2rect.x > WINDOWW:
-            resetsmallrock2()
-    if smallrock2direction == "up":
-        if smallrock2rect.y > 0:
-            smallrock2rect.y -= SMALLROCKVEL
-        if smallrock2rect.y <0:
-            resetsmallrock2()
-    if smallrock2direction == "down":
-        if smallrock2rect.y < WINDOWH:
-            smallrock2rect.y += SMALLROCKVEL
-        if smallrock2rect.y > WINDOWH:
-            resetsmallrock2()
+    if score >5:
+        if smallrock2direction == "left":
+            if smallrock2rect.x > 0:
+                smallrock2rect.x -= rockvel
+            if smallrock2rect.x < 0:
+                resetsmallrock2()
+        if smallrock2direction == "right":
+            if smallrock2rect.x < WINDOWW:
+                smallrock2rect.x += rockvel
+            if smallrock2rect.x > WINDOWW:
+                resetsmallrock2()
+        if smallrock2direction == "up":
+            if smallrock2rect.y > 0:
+                smallrock2rect.y -= rockvel
+            if smallrock2rect.y <0:
+                resetsmallrock2()
+        if smallrock2direction == "down":
+            if smallrock2rect.y < WINDOWH:
+                smallrock2rect.y += rockvel
+            if smallrock2rect.y > WINDOWH:
+                resetsmallrock2()
+
+    if score> 10:
+        if smallrock4direction == "left":
+            if smallrock4rect.x > 0:
+                smallrock4rect.x -= rockvel
+            if smallrock4rect.x < 0:
+                resetsmallrock4()
+        if smallrock4direction == "right":
+            if smallrock4rect.x < WINDOWW:
+                smallrock4rect.x += rockvel
+            if smallrock4rect.x > WINDOWW:
+                resetsmallrock4()
+        if smallrock4direction == "up":
+            if smallrock4rect.y > 0:
+                smallrock4rect.y -= rockvel
+            if smallrock4rect.y <0:
+                resetsmallrock4()
+        if smallrock4direction == "down":
+            if smallrock4rect.y < WINDOWH:
+                smallrock4rect.y += rockvel
+            if smallrock4rect.y > WINDOWH:
+                resetsmallrock4()
+
+    if score > 15:
+        if smallrock3direction == "left":
+            if smallrock3rect.x > 0:
+                smallrock3rect.x -= rockvel
+            if smallrock3rect.x < 0:
+                resetsmallrock3()
+        if smallrock3direction == "right":
+            if smallrock3rect.x < WINDOWW:
+                smallrock3rect.x += rockvel
+            if smallrock3rect.x > WINDOWW:
+                resetsmallrock3()
+        if smallrock3direction == "up":
+            if smallrock3rect.y > 0:
+                smallrock3rect.y -= rockvel
+            if smallrock3rect.y <0:
+                resetsmallrock3()
+        if smallrock3direction == "down":
+            if smallrock3rect.y < WINDOWH:
+                smallrock3rect.y += rockvel
+            if smallrock3rect.y > WINDOWH:
+                resetsmallrock3()
+
+    if score > 20:
+        if smallrock1direction == "left":
+            if smallrock1rect.x > 0:
+                smallrock1rect.x -= rockvel
+            if smallrock1rect.x < 0:
+                resetsmallrock1()
+        if smallrock1direction == "right":
+            if smallrock1rect.x < WINDOWW:
+                smallrock1rect.x += rockvel
+            if smallrock1rect.x > WINDOWW:
+                resetsmallrock1()
+        if smallrock1direction == "up":
+            if smallrock1rect.y > 0:
+                smallrock1rect.y -= rockvel
+            if smallrock1rect.y <0:
+                resetsmallrock1()
+        if smallrock1direction == "down":
+            if smallrock1rect.y < WINDOWH:
+                smallrock1rect.y += rockvel
+            if smallrock1rect.y > WINDOWH:
+                resetsmallrock1()
+
+    if smallrock5direction == "left":
+        if smallrock5rect.x > 0:
+            smallrock5rect.x -= rockvel
+        if smallrock5rect.x < 0:
+            resetsmallrock5()
+    if smallrock5direction == "right":
+        if smallrock5rect.x < WINDOWW:
+            smallrock5rect.x += rockvel
+        if smallrock5rect.x > WINDOWW:
+            resetsmallrock5()
+    if smallrock5direction == "up":
+        if smallrock5rect.y > 0:
+            smallrock5rect.y -= rockvel
+        if smallrock5rect.y <0:
+            resetsmallrock5()
+    if smallrock5direction == "down":
+        if smallrock5rect.y < WINDOWH:
+            smallrock5rect.y += rockvel
+        if smallrock5rect.y > WINDOWH:
+            resetsmallrock5()
 
     if lives <= 0:
         gameoversound.play()
@@ -305,31 +478,49 @@ while running:
                     lives = STARTINGLIVES
                     racoonrect.center = (WINDOWW//2,WINDOWH//2)
                     score = 0
+                    rockvel = STARTINGROCKVEL
+                    smallrock2rect.center = (100,0-BUFFER)
+                    smallrock5rect.center = (600,WINDOWH+BUFFER)
+                    smallrock4rect.center = (WINDOWW+BUFFER,400)
+                    smallrock1rect.center = (400,WINDOWH+BUFFER)
+                    smallrock3rect.center = (0-BUFFER,200)
                     paused = False
+
+
+    if score >= 3 and score < 50:
+        rockvel = 9
+    if score >= 50 and score < 70:
+        rockvel = 12
+    if score >= 70 and score < 90:
+        rockvel = 15
+    if score >= 90 and score < 110:
+        rockvel = 18
+    if score >= 110 and score < 130:
+        rockvel = 21
+    if score >= 130 and score < 150:
+        rockvel = 24
+    if score >= 150 and score < 170:
+        rockvel = 27
+    if score >= 170 and score < 190:
+        rockvel = 30
+    if score >= 190:
+        rockvel = 33
+
 
 
     scoretext = font.render("Score: "+str(score), True, WHITE, GREY)
     livestext = font.render("Lives: "+str(lives), True, WHITE, GREY)
 
-    window.fill(BLACK)
+    window.blit(backgroundimage,backgroundrect)
     window.blit(scoretext,scorerect)
     window.blit(livestext,livesrect)
+    window.blit(titletext,titlerect)
     window.blit(smallrock1image,smallrock1rect)
     window.blit(smallrock2image,smallrock2rect)
-    window.blit(bearimage,bearrect)
-    window.blit(lionimage,lionrect)
-    window.blit(bigrockimage,bigrockrect)
-    window.blit(leftlaserimage,leftlaserrect)
-    window.blit(rightlaserimage,rightlaserrect)
-    window.blit(uplaserimage,uplaserrect)
-    window.blit(downlaserimage,downlaserrect)
-    window.blit(bigrock2image,bigrock2rect)
     window.blit(smallrock3image,smallrock3rect)
     window.blit(smallrock4image,smallrock4rect)
-    window.blit(wolfimage,wolfrect)
-    window.blit(lionimage,lionrect)
-    window.blit(crocimage,crocrect)
-    window.blit(golddumplingimage,golddumplingrect)
+    window.blit(smallrock5image,smallrock5rect)
+    window.blit(golddumplingimage,golddumplingrect) 
     window.blit(dumpling1image,dumpling1rect)
     window.blit(dumpling2image,dumpling2rect)
     window.blit(dumpling3image,dumpling3rect)
